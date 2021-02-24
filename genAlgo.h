@@ -66,7 +66,7 @@ typedef struct GA_ChromosomeRange{
 /* ==================================================================== */
 /* ==================== GA function prototypes ======================== */
 /* ==================================================================== */
-void GA_init(float (*priceFun)(), float priceTr);
+void GA_init(float (*fitnesFunction)(), float priceTr);
 void GA_compute(float table[][5]);
 void GA_initPopulation();
 void GA_ratePopulation(float table[][5]);

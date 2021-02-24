@@ -37,7 +37,7 @@ int main()
 {
     printf("\nSTART!\n");
 
-    int tableLen = readTable("quadraticFunction.txt");
+    int tableLen = 21;
 
     GA_setChromosomeRange(1, 0.0, 100.0);
 

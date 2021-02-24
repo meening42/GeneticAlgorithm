@@ -1,0 +1,8 @@
+*.layout
+*.depend
+*.txt
+*.exe
+obj/
+output*
+
+

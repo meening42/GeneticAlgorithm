@@ -4,7 +4,7 @@
 
 static FILE *fEvo, *fPrice, *fMut, *fPriceAvrg, *fPop;
 bool adaptiveMutation = true;
-static int numOfIndivid, tableLength, numOfChromos;
+static int numOfChromos = 0;
 static float mutationProb;
 static float avrgPrice, priceGrad;
 static int pairsArray[NUM_OF_INDIV][2];
@@ -15,10 +15,32 @@ static int generation = 0;
 static initSOC = 100;
 static GA_individual bestIndividual;
 static GA_individual individualArray[NUM_OF_INDIV];
-static void (*fitnesFunc)();
+static float (*fitnesFunc)(float*);
 // float searchTable[MAX_TABLE_LEN][3];
 
 // TODO ged rid of all magic numbers
+
+
+static void GA_calcParameters(){
+    float temp1, temp2, temp3;
+    for(int i = 0; i<NUM_OF_INDIV; i++){
+        for(int c = 0; c<numOfChromos; c++){
+            // calculate parameters value representet by chromosome
+            temp1 = (float)individualArray[i].chromosome[c];
+            temp2 = temp1 / (float)(((1<<BITS_IN_CHROMOSOME)-1)) * (chromosomeRange[c].up - chromosomeRange[c].low);
+            temp3 = temp2 + chromosomeRange[c].low;
+            if(temp3>chromosomeRange[c].up){
+                printf("!!! over %d\n",c);
+                temp3 = chromosomeRange[c].up;
+            }
+            if(temp3<chromosomeRange[c].low){
+                temp3 = chromosomeRange[c].low;
+                printf("!!! lower%d\n",c);
+            }
+            individualArray[i].parameters[c] = temp3;
+        }
+    }
+}
 
 
 
@@ -26,86 +48,64 @@ static void (*fitnesFunc)();
 ///* ============================  FUNCTIONS  =========================== */
 ///* ==================================================================== */
 
-void GA_init(float (*fitnesFunction)(),float priceTr){
-    fitnesFunc = &fitnesFunction;
+void GA_init(float(*fitnesFunction)(float*),float priceTr){
+    fitnesFunc = fitnesFunction;
     gaInitOK = true;
     priceTreshold = priceTr;
     bestIndividual.price = FLT_MAX;
     GA_IOFileInit();
-    printf("GA initialization succesfull!\n");
+    printf("NUMBER OF CHROMOSOMES = %d\n", numOfChromos);
+    printf("GA initialization succesfull!\n\n");
 }
 
 
-void GA_compute(float table[][5]){
+void GA_compute(){
     if(!gaInitOK){
         printf("Ga init not ok!\n");
         return;
     }
-    printf("GA COMPUTE \n");
     time_t t;
     srand((unsigned) time(&t));
     GA_initPopulation();
     printf("GA initial population generated \n");
-    //GA_printPopulation(numOfIndivid);
+
     for(int i = 0; i<MAX_GENERATIONS; i++){
-        //printf("\n\nGENERATION %d\n",generation);
-        //printf("RATE: \n");
-        GA_ratePopulation(table);
+        printf("\nGENERATION %d\n",generation);
+
+        GA_ratePopulation();
+
         GA_selection();
-        GA_outputPrice();
-        GA_outputPriceAvrg();
+        printf("best price = %f\n", bestIndividual.price);
+
         if(bestIndividual.price<priceTreshold){
             printf("Price treshold %f < %f reached!", bestIndividual.price, priceTreshold);
             break;
         }
-        //GA_printPopulation(numOfIndivid);
-       // printf("SELECTION: \n");
 
-
-        //GA_printPopulation(numOfIndivid);
-
-        //printf("CROSOVER: \n");
         GA_crossover();
-        //GA_printPopulation(numOfIndivid);
-        //printf("MUTATION: \n");
+
         GA_mutation();
-        //GA_printPopulation(numOfIndivid);
+
         GA_outputMutation();
         generation++;
     }
-    GA_printPopulation(2);
-    GA_printBest();
-    GA_outputBestParameters();
     GA_IOfileClose();
 }
 
 void GA_initPopulation(){
-    for(int i = 0; i<numOfIndivid; i++){
+    for(int i = 0; i<NUM_OF_INDIV; i++){
         for(int c = 0; c<numOfChromos; c++){
             individualArray[i].chromosome[c] = rand()%(1<<BITS_IN_CHROMOSOME);
         }
     }
-    bestIndividual.price = 99999.9;
+    bestIndividual.price = FLT_MAX;
 }
 
 
-void GA_ratePopulation(float table[][5]){
-    for(int i = 0; i < numOfIndivid; i++){
-
-    }
-    float price;
-    for(int i = 0; i<numOfIndivid; i++){
-        price = 0.0f;
-        for(int j = 0; j<tableLength; j++){
-            float aprox;
-            //aprox = polyFunc(ind, table, i,j);
-            //aprox = furierFunc(searchTable,i,j);
-            aprox = escVbatAprox(table, i, j);
-            price = price + fabs((aprox - table[j][2])); //* (aprox - table[j][2]));
-            //printf("   price %f\n",price);
-        }
-        //printf("\n");
-        individualArray[i].price = price;
+void GA_ratePopulation(){
+    GA_calcParameters();
+    for(int i = 0; i < NUM_OF_INDIV; i++){
+        individualArray[i].price = (*fitnesFunc)(&individualArray[i].parameters);
     }
 }
 
@@ -119,10 +119,10 @@ static int GA_comparator(const void* p, const void* q)
 
 
 void GA_selection(){
-    qsort(individualArray, numOfIndivid, sizeof(struct GA_individual), GA_comparator);
-    int quarter = numOfIndivid /4;
+    qsort(individualArray, NUM_OF_INDIV, sizeof(struct GA_individual), GA_comparator);
+    int quarter = NUM_OF_INDIV /4;
     for(int i = 0; i<quarter; i++){
-        individualArray[numOfIndivid-i-1] =individualArray[i];
+        individualArray[NUM_OF_INDIV-i-1] =individualArray[i];
     }
     if(individualArray[0].price < bestIndividual.price){
         //printf("New best %f < %f\n",popul[0].price,bestIndividual.price);
@@ -137,9 +137,9 @@ void GA_selection(){
 static void GA_pairIndividuals(){
     int indx = 0;
     int j;
-    for(int i = 0; i<numOfIndivid/2; i++){
+    for(int i = 0; i<NUM_OF_INDIV/2; i++){
         do{
-            indx =  rand()%numOfIndivid;
+            indx =  rand()%NUM_OF_INDIV;
             if(!individualArray[indx].paired){
                 pairsArray[i][0] = indx;
                 individualArray[indx].paired  = true;
@@ -149,7 +149,7 @@ static void GA_pairIndividuals(){
         while(individualArray[indx].paired);
     }
     j = 0;
-    for(int i = 0; i<numOfIndivid; i++){
+    for(int i = 0; i<NUM_OF_INDIV; i++){
         if(!individualArray[i].paired){
             pairsArray[j][1] = i;
             individualArray[i].paired  = true;
@@ -159,7 +159,7 @@ static void GA_pairIndividuals(){
 }
 
 static void GA_printPairedTable(){
-    for(int i = 0; i<numOfIndivid/2+1; i++){
+    for(int i = 0; i<NUM_OF_INDIV/2+1; i++){
         printf("pair %d: = %d, %d" , i , pairsArray[i][0], pairsArray[i][1] );
         if(abs(pairsArray[i][0] - pairsArray[i][1]) == 75){
             printf("same !!!\n");
@@ -172,7 +172,7 @@ static void GA_printPairedTable(){
 
 
 static void GA_resetPaired(){
-    for(int i = 0; i<numOfIndivid; i++){
+    for(int i = 0; i<NUM_OF_INDIV; i++){
         individualArray[i].paired  = false;
     }
 }
@@ -188,7 +188,7 @@ void GA_crossover(){
     // check The Knuth algorithm
     GA_pairIndividuals();
     uint16_t leftMask, rightMask;
-    for(int i = 0;i<numOfIndivid/2;i++){
+    for(int i = 0;i<NUM_OF_INDIV/2;i++){
         indx1 = pairsArray[i][0];
         indx2 = pairsArray[i][1];
         for(int j = 0; j < numOfChromos; j++){
@@ -208,7 +208,7 @@ void GA_crossover(){
 
 
 void GA_mutation(){
-    int nBits = numOfChromos * numOfIndivid * BITS_IN_CHROMOSOME;
+    int nBits = numOfChromos * NUM_OF_INDIV * BITS_IN_CHROMOSOME;
     int nMutations;
     if(adaptiveMutation && (generation>= PRICE_AVRG_WINDOW)){
         //printf("price grad = %f\n",priceGrad);
@@ -227,7 +227,7 @@ void GA_mutation(){
     }
     nMutations =  (float)nBits * mutationProb * 0.01f;
     for(int i = 0; i<nMutations; i++){
-        int indxIndv = (rand()%(numOfIndivid - ELITES)) + ELITES;
+        int indxIndv = (rand()%(NUM_OF_INDIV - ELITES)) + ELITES;
         //printf("mutated ind = %d\n", indxIndv);
         int indxChrom = rand()%numOfChromos;
         int indxBit = rand()%(BITS_IN_CHROMOSOME);
@@ -240,6 +240,8 @@ void GA_setChromosomeRange(int indx, float inLow, float inUp){
     chromosomeRange[indx].low = inLow;
     chromosomeRange[indx].up = inUp;
     chromosomeRange[indx].used = true;
+    // count number of used chromosomes
+    numOfChromos = 0;
     for(int i = 0; i<MAX_CHROMOSOMES;i++){
         if(chromosomeRange[i].used){
             numOfChromos++;
@@ -272,13 +274,6 @@ void GA_printBest(){
     for(int c = 0; c<numOfChromos;c++){
         printf("%f  ",bestIndividual.parameters[c] );
     }
-    printf("\n    R0  =%.5f\n",bestIndividual.parameters[0]);
-    printf("    eta =%.5f\n",bestIndividual.parameters[1]);
-    printf("    gama=%.5f\n",bestIndividual.parameters[2]);
-    printf("    M   =%.5f\n",bestIndividual.parameters[3]);
-    printf("    M0  =%.5f\n",bestIndividual.parameters[4]);
-    printf("    R1  =%.5f\n",bestIndividual.parameters[5]);
-    printf("    C1  =%.5f\n",bestIndividual.parameters[6]);
     printf("\nprice: %f\n\n", bestIndividual.price);
 }
 
@@ -300,11 +295,6 @@ void GA_printPopulation(int numIndv){
         printf("\n");
 //        printf("    R0  =%.5f\n",individualArray[i].R0);
 //        printf("    eta =%.5f\n",individualArray[i].eta);
-//        printf("    gama=%.5f\n",individualArray[i].gama);
-//        printf("    M   =%.5f\n",individualArray[i].M);
-//        printf("    M0  =%.5f\n",individualArray[i].M0);
-//        printf("    R1  =%.5f\n",individualArray[i].rCoef[0]);
-//        printf("    C1  =%.5f\n",individualArray[i].cCoef[0]);
         printf("  PRICE: %f\n", individualArray[i].price);
     }
     printf("\n\n\n\n");
@@ -366,7 +356,7 @@ void GA_IOfileClose(){
 //}
 
 void GA_outputPopulation(){
-    for(int i = 0; i<numOfIndivid; i++){
+    for(int i = 0; i<NUM_OF_INDIV; i++){
         for(int j = 0;j<numOfChromos;j++){
              fprintf(fPop, "%f ", individualArray[i].parameters[j]);
         }

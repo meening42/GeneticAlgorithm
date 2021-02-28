@@ -3,8 +3,7 @@
 #include "genAlgo.h"
 
 
-
-
+const int tableLen = 21;
 float inputTable[21][2] = {
     {-10,  204},
     {-9,   166},
@@ -31,38 +30,37 @@ float inputTable[21][2] = {
 float sTable2[MAX_TABLE_LEN][MAX_TABLE_WITDH];
 int readTable(char* fileName);
 
-float fitnesQuadratic(float table[][5],int tableLen, float parameters[3]);
+
+float fitnesQuadratic(float parameters[2]);
+
 
 int main()
 {
-    printf("\nSTART!\n");
 
-    int tableLen = 21;
 
-    GA_setChromosomeRange(1, 0.0, 100.0);
+    GA_setChromosomeRange(0, -10.0, 10.0);
+    GA_setChromosomeRange(1, -10.0, 10.0);
 
     if(tableLen){
-        GA_init(&fitnesQuadratic, 123.0);
-        GA_compute(inputTable);
+        GA_init(fitnesQuadratic, 0.0000001);
+        GA_compute();
     }
-
-    printf("GA FINISHED\n");
+    GA_printBest();
     return 0;
 }
 
 
-
-float fitnesQuadratic(float table[][5],int tableLen ,float parameters[3]){
+float fitnesQuadratic(float parameters[2]){
     float aprox, diff, price;
+    price = 0;
     for(int i= 0; i<tableLen; i++){
-        aprox = table[i][1]*table[i][1];
-        diff = table[i][2]-aprox;
+        aprox = parameters[0]*(float)inputTable[i][0]*(float)inputTable[i][0] + parameters[1];
+        diff = inputTable[i][1]-aprox;
         price += diff*diff;
     }
     price = price/tableLen;
     return price;
 }
-
 
 
 

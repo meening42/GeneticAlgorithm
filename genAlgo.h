@@ -29,9 +29,9 @@
 #define MAX_TABLE_LEN 1000
 #define MAX_TABLE_WITDH 5
 #define MAX_CHROMOSOMES 10
-#define MAX_GENERATIONS 100
+#define MAX_GENERATIONS 50
+#define NUM_OF_INDIV 50
 
-#define NUM_OF_INDIV 100
 #define MAX_MUTATION_PROB 6
 #define MUTATION_STEP 0.5
 #define MUTATION_INIT_PROB 0.1
@@ -66,10 +66,10 @@ typedef struct GA_ChromosomeRange{
 /* ==================================================================== */
 /* ==================== GA function prototypes ======================== */
 /* ==================================================================== */
-void GA_init(float (*fitnesFunction)(), float priceTr);
-void GA_compute(float table[][5]);
+void GA_init(float (*fitnesFunction)(float*), float priceTr);
+void GA_compute();
 void GA_initPopulation();
-void GA_ratePopulation(float table[][5]);
+void GA_ratePopulation();
 void GA_selection();
 void GA_crossover();
 void GA_mutation();

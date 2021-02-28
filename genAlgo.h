@@ -73,7 +73,7 @@ void GA_ratePopulation();
 void GA_selection();
 void GA_crossover();
 void GA_mutation();
-void GA_setChromosomeRange(int indx, float inLow, float inUp);
+void GA_setParameterRange(int indx, float inLow, float inUp);
 
 /// PRINT
 void GA_printPopulation(int numIndv);

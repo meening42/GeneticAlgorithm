@@ -38,16 +38,17 @@ int main()
 {
 
 
-    GA_setChromosomeRange(0, -10.0, 10.0);
-    GA_setChromosomeRange(1, -10.0, 10.0);
+    GA_setParameterRange(0, -10.0, 10.0);
+    GA_setParameterRange(1, -10.0, 10.0);
 
-    if(tableLen){
-        GA_init(fitnesQuadratic, 0.0000001);
-        GA_compute();
-    }
+    GA_init(fitnesQuadratic, 0.0000001);
+    GA_compute();
+
     GA_printBest();
+
     return 0;
 }
+
 
 
 float fitnesQuadratic(float parameters[2]){

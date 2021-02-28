@@ -236,7 +236,7 @@ void GA_mutation(){
     }
 }
 
-void GA_setChromosomeRange(int indx, float inLow, float inUp){
+void GA_setPArameterRange(int indx, float inLow, float inUp){
     chromosomeRange[indx].low = inLow;
     chromosomeRange[indx].up = inUp;
     chromosomeRange[indx].used = true;
@@ -265,7 +265,7 @@ void GA_printIndividual(GA_individual  * ind){
 }
 
 void GA_printBest(){
-    printf("BEST INDIVIDUAL:\n");
+    printf("\nBEST INDIVIDUAL:\n");
     printf("chromosomes = ");
     for(int c = 0; c<numOfChromos;c++){
         printf("%d  ",bestIndividual.chromosome[c] );
@@ -336,24 +336,6 @@ void GA_IOfileClose(){
     fclose(fPriceAvrg);
 }
 
-//void GA_readTable(char* fileName, int tColumns, int tLenght){
-//    FILE * fTable;
-//    fTable = fopen(fileName, "r" );
-//    if(searchTable == 0){
-//        printf("Can't open file\n");
-//        return;
-//    }
-//    int i = 0;
-//    if(tColumns == 2){
-//        while (fscanf(fTable,"%f %f",&searchTable[i][0], &searchTable[i][1]) ==2){i++;}
-//    }
-//    if(tColumns == 3){
-//        while (fscanf(fTable,"%f %f %f",&searchTable[i][0], &searchTable[i][1], &searchTable[i][2]) ==3){i++;}
-//    }
-//    fclose(fTable);
-//    // GA_printSearchTable(tLenght);  // optional print of tabel
-//    return;
-//}
 
 void GA_outputPopulation(){
     for(int i = 0; i<NUM_OF_INDIV; i++){

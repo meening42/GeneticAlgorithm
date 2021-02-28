@@ -4,5 +4,5 @@
 *.exe
 obj/
 output*
-
-
+*.cbp
+*.csope*

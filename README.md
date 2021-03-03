@@ -1,7 +1,13 @@
 # Genetic Algorithm
 
-Generic C library with genetic (evolutionary) algorithm implements selection, crossover and mutation. 
-This library can be used on wide range of applicatoins. Ratting/fitenss function must be written separately.    
+C library with genetic (evolutionary) algorithm. Implementations and features: 
+- generation of population (array of individduals)
+- each individual has set number of chromosomes
+- chromosome is represented with intiger number
+- each chromosome can be automaticaly maped to a float type with desired range (use function GA_setParameterRange)
+- selection
+- crosover
+- mutation    
 
 ## Examples
 The library comes with example sketches. See Examples file 

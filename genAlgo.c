@@ -236,7 +236,7 @@ void GA_mutation(){
     }
 }
 
-void GA_setPArameterRange(int indx, float inLow, float inUp){
+void GA_setChromMappingRange(int indx, float inLow, float inUp){
     chromosomeRange[indx].low = inLow;
     chromosomeRange[indx].up = inUp;
     chromosomeRange[indx].used = true;

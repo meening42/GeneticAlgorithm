@@ -68,12 +68,7 @@ typedef struct GA_ChromosomeRange{
 /* ==================================================================== */
 void GA_init(float (*fitnesFunction)(float*), float priceTr);
 void GA_compute();
-void GA_initPopulation();
-void GA_ratePopulation();
-void GA_selection();
-void GA_crossover();
-void GA_mutation();
-void GA_setParameterRange(int indx, float inLow, float inUp);
+void GA_setChromMappingRange(int indx, float inLow, float inUp);
 
 /// PRINT
 void GA_printPopulation(int numIndv);

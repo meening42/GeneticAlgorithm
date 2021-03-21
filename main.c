@@ -38,8 +38,8 @@ int main()
 {
 
 
-    GA_setParameterRange(0, -10.0, 10.0);
-    GA_setParameterRange(1, -10.0, 10.0);
+    GA_setChromMappingRange(0, -10.0, 10.0);
+    GA_setChromMappingRange(1, -10.0, 10.0);
 
     GA_init(fitnesQuadratic, 0.0000001);
     GA_compute();

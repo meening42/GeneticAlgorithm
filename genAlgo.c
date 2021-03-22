@@ -122,7 +122,8 @@ void GA_selection(){
     for(int i = 0; i<quarter; i++){
         individualArray[NUM_OF_INDIV-i-1] =individualArray[i];
         for(int j = 0; j<numOfChromos;j++){
-            individualArray[NUM_OF_INDIV-i-1].chromosome[j] += rand()%10 -5;
+            //individualArray[NUM_OF_INDIV-i-1].chromosome[j] += rand()%10 -5;
+            individualArray[NUM_OF_INDIV-i-1].chromosome[j] =  individualArray[0].chromosome[j] + rand()%10 -5;
         }
     }
 

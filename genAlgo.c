@@ -18,7 +18,7 @@ static GA_individual individualArray[NUM_OF_INDIV];
 static float (*fitnesFunc)(float*);
 // float searchTable[MAX_TABLE_LEN][3];
 
-// TODO ged rid of all magic numbers
+// TODO get rid of all magic numbers
 
 
 static void GA_calcParameters(){
@@ -30,12 +30,10 @@ static void GA_calcParameters(){
             temp2 = temp1 / (float)(((1<<BITS_IN_CHROMOSOME)-1)) * (chromosomeRange[c].up - chromosomeRange[c].low);
             temp3 = temp2 + chromosomeRange[c].low;
             if(temp3>chromosomeRange[c].up){
-                printf("!!! over %d\n",c);
                 temp3 = chromosomeRange[c].up;
             }
             if(temp3<chromosomeRange[c].low){
                 temp3 = chromosomeRange[c].low;
-                printf("!!! lower%d\n",c);
             }
             individualArray[i].parameters[c] = temp3;
         }
@@ -123,13 +121,13 @@ void GA_selection(){
     int quarter = NUM_OF_INDIV /4;
     for(int i = 0; i<quarter; i++){
         individualArray[NUM_OF_INDIV-i-1] =individualArray[i];
+        for(int j = 0; j<numOfChromos;j++){
+            individualArray[NUM_OF_INDIV-i-1].chromosome[j] += rand()%10 -5;
+        }
     }
+
     if(individualArray[0].price < bestIndividual.price){
-        //printf("New best %f < %f\n",popul[0].price,bestIndividual.price);
         bestIndividual = individualArray[0];
-    }
-    else{
-        //printf("FAILED To make better individual\n");
     }
 }
 
@@ -230,10 +228,18 @@ void GA_mutation(){
         int indxIndv = (rand()%(NUM_OF_INDIV - ELITES)) + ELITES;
         //printf("mutated ind = %d\n", indxIndv);
         int indxChrom = rand()%numOfChromos;
-        int indxBit = rand()%(BITS_IN_CHROMOSOME);
+        int indxBit = rand()%(BITS_IN_CHROMOSOME-1);
         uint16_t mask = 1<<indxBit;
-        individualArray[indxIndv].chromosome[indxChrom] ^= mask;
+        uint16_t temp  = individualArray[indxIndv].chromosome[indxChrom];
+        temp ^= mask;
+        if(temp > 32768){
+            printf("!!! MUTATION PROBLEM\n");
+            printf("chromosome = %d\n", individualArray[indxIndv].chromosome[indxChrom]);
+            printf("mask = %d\n",mask);
+        }
+        individualArray[indxIndv].chromosome[indxChrom]  = temp;
     }
+
 }
 
 void GA_setChromMappingRange(int indx, float inLow, float inUp){

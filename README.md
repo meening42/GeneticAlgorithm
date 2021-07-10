@@ -9,15 +9,22 @@ C library with genetic (evolutionary) algorithm. Implementations and features:
 - crosover
 - mutation    
 
-## Examples
-The library comes with example sketches. See Examples file 
-
 ## Usage
 
 Include:
 ```c
 #include "genAlgo.h"
 ```
+
+Define your fitnes function example:
+```c
+float fitnesFunciton(float parameters[]){
+    /*CALCULATE FITNES OF PARAMETERS HERE*/
+    /*AND RETURN THE FITNES*/
+    return fitnes;
+}
+```
+
 Initialize:
 ```c
 GA_init(fitnessFunction, 0.0000001);
@@ -37,6 +44,9 @@ Print out best individual:
 ```c
 GA_printBest();
 ```
+
+## Examples
+The library comes with example sketches. See Examples file 
 
 ## License
 
